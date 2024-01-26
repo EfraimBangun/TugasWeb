@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- ===== CSS ===== -->
+    <link rel="stylesheet" href="style.css">
+        
+    <!-- ===== Boxicons CSS ===== -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'> 
+
+    <title>Responsive Navigation Menu Bar</title>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-bar">
+            <i class='bx bx-menu sidebarOpen' ></i>
+            <span class="logo navLogo"><a href="#">Shoday</a></span>
+
+            <div class="menu">
+                <div class="logo-toggle">
+                    <span class="logo"><a href="#">Shoday</a></span>
+                    <i class='bx bx-x siderbarClose'></i>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Portfolio</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <div class="cart-icon" onclick="openCart()">🛒</div>
+                </ul>
+            </div>
+
+            <div class="darkLight-searchBox">
+                <div class="dark-light">
+                    <i class='bx bx-moon moon'></i>
+                    <i class='bx bx-sun sun'></i>
+                </div>
+
+                <div class="searchBox">
+                   <div class="searchToggle">
+                    <i class='bx bx-x cancel'></i>
+                    <i class='bx bx-search search'></i>
+                   </div>
+
+                    <div class="search-field">
+                        <input type="text" placeholder="Search...">
+                        <i class='bx bx-search'></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container product-grid">
+        <!-- Produk 1 -->
+        <div class="product" onclick="viewProduct('Kaos Medan', '5.jpg', 'Fashionable Clothes', 49.99)">
+            <img src="5.jpg" alt="Clothes">
+            <div class="product-details">
+                <h2>Kaos Medan</h2>
+                <p class="price" data-price="49.99"><span>$</span>49.99</p>
+                <div class="quantity-section">
+                    <label for="quantity1">Quantity:</label>
+                    <input type="number" id="quantity1" value="1" min="1" oninput="updateSelectedQuantity('quantity1')" data-price="49.99">
+                    <p id="selectedQuantity1">Selected: 1</p>
+                </div>
+                <button onclick="addToCartAndView('Kaos Medan', '5.jpg', 'Fashionable Clothes', 49.99, 'quantity1')">Add to Cart</button>
+            </div>
+        </div>
+
+        <!-- Produk 2 -->
+        <div class="product" onclick="viewProduct('Baju Basket', '1.jpg', 'Stylish Pants', 39.99)">
+            <img src="1.jpg" alt="Pants">
+            <div class="product-details">
+                <h2>Baju Basket</h2>
+                <p class="price" data-price="39.99"><span>$</span>39.99</p>
+                <div class="quantity-section">
+                    <label for="quantity2">Quantity:</label>
+                    <input type="number" id="quantity2" value="1" min="1" oninput="updateSelectedQuantity('quantity2')" data-price="39.99">
+                    <p id="selectedQuantity2">Selected: 1</p>
+                </div>
+                <button onclick="addToCartAndView('Baju Basket', '1.jpg', 'Stylish Pants', 39.99, 'quantity2')">Add to Cart</button>
+            </div>
+        </div>
+
+        <!-- Produk 3 -->
+        <!-- (Tambahkan produk lainnya sesuai kebutuhan) -->
+
+    </div>
+
+    <div id="notification" class="notification">
+        Product added to cart!
+    </div>
+
+    <div id="cartModal" class="modal">
+        <span class="close" onclick="closeCart()">&times;</span>
+        <h2>Shopping Cart</h2>
+        <ul id="cartItems"></ul>
+        <div id="totalPriceSection">
+            <p>Total Price: $<span id="totalPrice">0.00</span></p>
+        </div>
+        <button onclick="checkout()">Checkout</button>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function addToCart(name, image, description, price, quantityInputId) {
+            const quantity = document.getElementById(quantityInputId).value;
+            const total = price * quantity;
+            cart.push({ name: name, image: image, description: description, price: total, quantity: quantity });
+            updateCart();
+            updateTotalPrice();
+        }
+
+        function addToCartAndView(productName, image, description, price, quantityInputId) {
+            const quantity = document.getElementById(quantityInputId).value;
+            const total = price * quantity;
+            cart.push({ name: productName, image: image, description: description, price: total, quantity: quantity });
+            updateCart();
+            updateTotalPrice();
+            closeProductModal();
+        }
+
+        function updateSelectedQuantity(quantityInputId) {
+            const quantity = document.getElementById(quantityInputId).value;
+            const price = parseFloat(document.getElementById(quantityInputId).getAttribute('data-price'));
+            const total = price * quantity;
+            document.getElementById(`selectedQuantity${quantityInputId.slice(-1)}`).textContent = `Selected: ${quantity}`;
+            updateTotalPrice();
+        }
+
+        function updateTotalPrice() {
+            const totalPriceElement = document.getElementById('totalPrice');
+            let totalPrice = 0;
+
+            cart.forEach(item => {
+                totalPrice += item.price;
+            });
+
+            totalPriceElement.textContent = totalPrice.toFixed(2);
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cartItems');
+            cartItems.innerHTML = '';
+
+            cart.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="cart-product">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-product-details">
+                            <p>${item.name}</p>
+                            <p class="cart-price">$${item.price.toFixed(2)}</p>
+                            <div class="quantity-section">
+                                <label for="cartQuantity${item.name}">Quantity:</label>
+                                <input type="number" id="cartQuantity${item.name}" value="${item.quantity}" min="1" onchange="updateCartItem('${item.name}', 'cartQuantity${item.name}')">
+                                <button onclick="removeFromCart('${item.name}')">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                cartItems.appendChild(li);
+            });
+        }
+
+        function updateCartItem(productName, quantityInputId) {
+            const quantity = document.getElementById(quantityInputId).value;
+            const product = cart.find(item => item.name === productName);
+            const pricePerUnit = product.price / product.quantity;
+            product.quantity = parseInt(quantity);
+            product.price = pricePerUnit * product.quantity;
+            updateCart();
+            updateTotalPrice();
+        }
+
+        function removeFromCart(productName) {
+            cart = cart.filter(item => item.name !== productName);
+            updateCart();
+            updateTotalPrice();
+        }
+
+        function openSearch() {
+            document.getElementById('searchModal').style.display = 'block';
+        }
+
+        function closeSearch() {
+            document.getElementById('searchModal').style.display = 'none';
+        }
+
+        function openCart() {
+            updateCart();
+            document.getElementById('cartModal').style.display = 'block';
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').style.display = 'none';
+        }
+
+        function checkout() {
+            // Implement the checkout process (e.g., payment, order confirmation) here
+            alert('Thank you for your purchase!');
+            cart = [];
+            updateCart();
+            updateTotalPrice();
+            closeCart();
+        }
+
+        const body = document.querySelector("body"),
+            nav = document.querySelector("nav"),
+            modeToggle = document.querySelector(".dark-light"),
+            searchToggle = document.querySelector(".searchToggle"),
+            sidebarOpen = document.querySelector(".sidebarOpen"),
+            siderbarClose = document.querySelector(".siderbarClose");
+
+        let getMode = localStorage.getItem("mode");
+        if (getMode && getMode === "dark-mode") {
+            body.classList.add("dark");
+        }
+
+        // js code to toggle dark and light mode
+        modeToggle.addEventListener("click", () => {
+            modeToggle.classList.toggle("active");
+            body.classList.toggle("dark");
+
+            // js code to keep user selected mode even page refresh or file reopen
+            if (!body.classList.contains("dark")) {
+                localStorage.setItem("mode", "light-mode");
+            } else {
+                localStorage.setItem("mode", "dark-mode");
+            }
+        });
+
+        // js code to toggle search box
+        searchToggle.addEventListener("click", () => {
+            searchToggle.classList.toggle("active");
+        });
+
+        //   js code to toggle sidebar
+        sidebarOpen.addEventListener("click", () => {
+            nav.classList.add("active");
+        });
+
+        body.addEventListener("click", e => {
+            let clickedElm = e.target;
+
+            if (!clickedElm.classList.contains("sidebarOpen") && !clickedElm.classList.contains("menu")) {
+                nav.classList.remove("active");
+            }
+        });
+    </script>
+</body>
+</html>
